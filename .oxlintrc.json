@@ -50,11 +50,11 @@
       // nativo exige showModal() imperativo, top layer e ::backdrop
       // proprio - trocar reescreve o sistema de modais.
       "files": [
-        "components/ui/modal.tsx",
-        "components/ui/info-hint.tsx",
-        "components/ui/share-profile-modal.tsx",
-        "components/screens/ad-details/photo-lightbox.tsx",
-        "components/screens/chat-screen.tsx"
+        "apps/web/components/ui/modal.tsx",
+        "apps/web/components/ui/info-hint.tsx",
+        "apps/web/components/ui/share-profile-modal.tsx",
+        "apps/web/components/screens/ad-details/photo-lightbox.tsx",
+        "apps/web/components/screens/chat-screen.tsx"
       ],
       "rules": {
         "jsx-a11y/prefer-tag-over-role": "off"
@@ -64,7 +64,7 @@
       // Combobox custom que implementa o padrao WAI-ARIA (combobox +
       // listbox + option). A regra pede <select>/<option> nativos, o que
       // significa apagar o componente.
-      "files": ["components/ui/select.tsx"],
+      "files": ["apps/web/components/ui/select.tsx"],
       "rules": {
         "jsx-a11y/prefer-tag-over-role": "off"
       }
@@ -72,7 +72,7 @@
     {
       // Editor de descricao e um contentEditable com formatacao rica;
       // role="textbox" e o correto, <textarea> nao suporta bold/listas.
-      "files": ["components/screens/professional-dashboard/announcement-tab.tsx"],
+      "files": ["apps/web/components/screens/professional-dashboard/announcement-tab.tsx"],
       "rules": {
         "jsx-a11y/prefer-tag-over-role": "off"
       }
@@ -83,22 +83,26 @@
       // Nao ha equivalente de teclado a acrescentar: um onBlur so
       // dispararia com tabIndex, e dar foco a um canvas que nao aceita
       // desenho por teclado criaria um tab stop inutil.
-      "files": ["components/ui/image-blur-modal.tsx"],
+      "files": ["apps/web/components/ui/image-blur-modal.tsx"],
       "rules": {
         "jsx-a11y/mouse-events-have-key-events": "off"
       }
     }
   ],
   "ignorePatterns": [
-    ".next/**",
-    "out/**",
-    "build/**",
-    "next-env.d.ts",
+    "**/.next/**",
+    "**/out/**",
+    "**/build/**",
+    "**/dist/**",
+    "**/coverage/**",
+    "**/next-env.d.ts",
+    "**/drizzle/**",
     ".tmp-venv/**",
     ".agents/**",
     ".claude/**",
+    ".cursor/**",
     ".superpowers/**",
-    "playwright-report/**",
-    "test-results/**"
+    "**/playwright-report/**",
+    "**/test-results/**"
   ]
 }

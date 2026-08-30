@@ -1,92 +1,76 @@
-# Raparigator - Frontend
+# Raparigator (Sigillus)
 
-Bem-vindo ao repositório frontend do projeto **Raparigator** (Sigillus). Este projeto foi construído utilizando as tecnologias mais modernas do ecossistema React, focado em performance, design e experiência do usuário (UX).
+Monorepo da plataforma **Sigillus**: vitrine de anúncios de acompanhantes com feed, chat, painel da profissional, assinatura premium e backoffice. Frontend em Next.js e API em TypeScript compartilhando contrato e regras de domínio.
 
-> **Importante:** ainda não há backend. Todos os dados são mockados em `lib/` (`lib/mock-data.ts`, `lib/mock-users.ts`) — nenhuma variável de ambiente ou API externa é necessária para rodar o projeto.
+> A plataforma **não intermedeia serviço**: nenhum dinheiro de cliente transita por ela; o único fluxo monetário é a assinatura premium da profissional. Veja `docs/adr/README.md`.
 
-## 🚀 Tecnologias e Stack
-
-- **Framework:** [Next.js 16](https://nextjs.org/) (App Router, Turbopack)
-- **Biblioteca de Interface:** [React 19](https://react.dev/)
-- **Estilização:** [Tailwind CSS v4](https://tailwindcss.com/)
-- **Animações e Micro-interações:** [Motion](https://motion.dev/)
-- **Ícones:** [Lucide React](https://lucide.dev/)
-- **Linguagem:** TypeScript
-- **Testes E2E:** [Playwright](https://playwright.dev/)
-- **Manipulação de Imagens:** `react-image-crop`
-
-## 📁 Estrutura Principal do Projeto
-
-A arquitetura do frontend foi dividida visando escalabilidade e separação de preocupações de rota.
+## Layout
 
 ```
-app/
-├── (tabs)       # Abas principais com shell persistente (Feed, Chat, Acompanhamento, Painel)
-├── (public)     # Rotas abertas (Autenticação, Anúncio, Checkout, Popular)
-├── (private)    # Rotas que exigem usuário logado (Conta, Financeiro, Anúncios)
-└── (admin)      # Rotas de uso exclusivo de administradores (Backoffice)
-
-components/
-├── ui/          # Componentes genéricos e primitivos (Botões, Inputs, Modais)
-├── layout/      # Componentes estruturais (Navbar, Footer, Sidebar)
-└── screens/     # Componentes e fragmentos maiores que compõem páginas
-
-lib/             # Tipos (types.ts), mocks e serviços (auth-session, chat-service, etc.)
-tests/           # Suite E2E Playwright (logins de teste em tests/helpers/credentials.ts)
+apps/web/            Next.js 16 (App Router, Turbopack) · React 19 · Tailwind 4 · Motion · Lucide
+apps/api/            Hono + oRPC + Zod 4 · Drizzle (Postgres 17) · better-auth · pg-boss · pino · Vitest
+packages/contracts/  Contrato oRPC + schemas Zod — a fonte de verdade dos tipos
+packages/domain/     Regras de negócio puras compartilhadas (limites por plano, gate de avaliação, filtros do feed, rascunho, briefing)
+docs/adr/            Decisões de arquitetura
+compose.yaml         Postgres + MinIO locais
 ```
 
-## 🛠 Pré-requisitos
+## Pré-requisitos
 
-- **Node.js** 20.19+, 22.13+ ou 24+ (ver `engines` no `package.json`)
-- `npm` (ou outro gerenciador de pacotes da sua preferência)
+- **Node.js** 20.19+, 22.13+ ou 24+ (ver `engines`) e `npm`
+- **Docker** (para Postgres e MinIO locais; só necessário para rodar a API)
 
-## 💻 Como Rodar o Projeto Localmente
+## Rodando
 
-1. **Clone o repositório e acesse o diretório:**
+```bash
+git clone --filter=blob:none https://github.com/djlabz/raparigator.git
+cd raparigator
+npm install
+```
 
-   ```bash
-   git clone --filter=blob:none https://github.com/djlabz/raparigator.git
-   cd raparigator
-   ```
+Só o web (dados mockados, sem banco):
 
-   > A flag `--filter=blob:none` baixa apenas os arquivos da versão atual (clone bem mais rápido). Um `git clone` normal também funciona.
+```bash
+npm run dev
+```
 
-2. **Instale as dependências:**
+Web + API:
 
-   ```bash
-   npm install
-   ```
+```bash
+npm run db:up
+cp apps/api/.env.example apps/api/.env
+npm run db:migrate -w apps/api
+npm run db:seed -w apps/api
+npm run dev:api
+NEXT_PUBLIC_DATA_SOURCE=api npm run dev
+```
 
-3. **Inicie o Servidor de Desenvolvimento:**
+- Web: http://localhost:3000 · API: http://localhost:4000 (`/healthz`, `/api/docs` com a spec OpenAPI)
+- MinIO console: http://localhost:9001 (credenciais em `compose.yaml`, só para dev)
 
-   ```bash
-   npm run dev
-   ```
+## Scripts (raiz)
 
-4. O aplicativo estará disponível em: [http://localhost:3000](http://localhost:3000)
+| Script                                      | O que faz                                                         |
+| ------------------------------------------- | ----------------------------------------------------------------- |
+| `npm run dev` / `dev:legacy`                | Next em dev (Turbopack / webpack)                                 |
+| `npm run dev:api`                           | API em dev com reload (`tsx watch`)                               |
+| `npm run build` / `build:web` / `build:api` | Build de produção                                                 |
+| `npm run check`                             | lint + format:check + typecheck de todos os workspaces            |
+| `npm run test`                              | Vitest do `domain` e da `api` (a `api` precisa de `DATABASE_URL`) |
+| `npm run test:e2e`                          | Suíte Playwright do web (Chromium)                                |
+| `npm run db:up` / `db:down`                 | Sobe/derruba Postgres + MinIO                                     |
+| `npm run db:generate -w apps/api`           | Gera migration SQL a partir do schema Drizzle                     |
+| `npm run db:migrate -w apps/api`            | Aplica migrations                                                 |
+| `npm run db:seed -w apps/api`               | Seeds de catálogos e dados de desenvolvimento                     |
+| `npm run share`                             | Expõe o web publicamente via Cloudflare tunnel (use com cuidado)  |
 
-## 📦 Scripts Disponíveis
+## Origem de dados no web
 
-- `npm run dev`: Inicia o servidor local usando o **Turbopack** para compilação super rápida.
-- `npm run dev:legacy`: Inicia o servidor local com o compilador padrão do Next.js.
-- `npm run build`: Faz a build otimizada da aplicação para ambiente de produção.
-- `npm run start`: Inicia o servidor Node para a versão já compilada pelo `build`.
-- `npm run lint`: Checa a qualidade de código utilizando **oxlint** (config em `.oxlintrc.json`).
-- `npm run lint:fix`: Aplica as correções automáticas do oxlint.
-- `npm run format`: Formata o código com **oxfmt** (config em `.oxfmtrc.json`).
-- `npm run format:check`: Verifica a formatação sem alterar arquivos.
-- `npm run typecheck`: Roda o compilador TypeScript sem emitir arquivos.
-- `npm run check`: Lint + format:check + typecheck (rode antes de abrir PR).
-- `npm run test:e2e`: Roda a suite E2E Playwright (Chromium). Variantes: `test:e2e:ui`, `test:e2e:report`.
-- `npm run share`: Expõe o `localhost:3000` **publicamente** via túnel Cloudflare (`cloudflared`). Use com cuidado e apenas quando precisar de testes externos.
+`NEXT_PUBLIC_DATA_SOURCE=mock|api` (default `mock`). Os módulos migram um a um do mock para a API; a ordem está em `docs/adr/README.md`. Em modo `api`, `NEXT_PUBLIC_API_URL` aponta para a API (default `http://localhost:4000`).
 
-## 🤝 Diretrizes de Contribuição
+## Contribuindo
 
-1. **Commit Messages**: Procure utilizar padrões semânticos nos commits (ex: `feat:`, `fix:`, `chore:`, `style:`).
-2. **Branches**: Evite comitar diretamente na `main`. Crie branches descritivas como `feature/minha-feature` ou `fix/bug-navbar`.
-3. Certifique-se de executar o `npm run check` e checar o visual antes de abrir Pull Requests.
-4. Mais convenções (e o que nunca fazer) estão no `AGENTS.md`.
-
----
-
-_Desenvolvido focado em Alta Performance e Interfaces Ricas._
+1. Commits semânticos em português (`feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `ci:`).
+2. Branches descritivas; PRs contra `development`, nunca direto na `main`.
+3. `npm run check` e `npm run test` verdes antes de abrir PR; `npm run test:e2e` antes de publicar o PR.
+4. Convenções completas e proibições em `AGENTS.md`.

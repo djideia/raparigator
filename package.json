@@ -2,43 +2,40 @@
   "name": "raparigator",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "next dev --turbopack",
-    "dev:legacy": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "dev": "npm run dev -w apps/web",
+    "dev:legacy": "npm run dev:legacy -w apps/web",
+    "dev:api": "npm run dev -w apps/api",
+    "build": "npm run build --workspaces --if-present",
+    "build:web": "npm run build -w apps/web",
+    "build:api": "npm run build -w apps/api",
+    "start": "npm run start -w apps/web",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "npm run typecheck --workspaces --if-present",
     "check": "npm run lint && npm run format:check && npm run typecheck",
-    "test:e2e": "playwright test --project=chromium",
-    "test:e2e:ui": "playwright test --project=chromium --ui",
-    "test:e2e:report": "playwright show-report",
-    "share": "npx cloudflared tunnel --url http://localhost:3000"
-  },
-  "dependencies": {
-    "lucide-react": "^1.12.0",
-    "motion": "^12.38.0",
-    "next": "^16.2.12",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
-    "react-image-crop": "^11.0.10"
+    "test": "npm run test --workspaces --if-present",
+    "test:e2e": "npm run test:e2e -w apps/web",
+    "test:e2e:ui": "npm run test:e2e:ui -w apps/web",
+    "test:e2e:report": "npm run test:e2e:report -w apps/web",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "share": "npm run share -w apps/web"
   },
   "devDependencies": {
-    "@playwright/test": "^1.62.1",
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
     "oxfmt": "0.63.0",
     "oxlint": "1.78.0",
-    "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "5.9.3"
   },
   "overrides": {
     "brace-expansion@1": "1.1.18",
+    "nanoid": "3.3.18",
     "postcss": "^8.5.18",
     "sharp": "^0.35.3"
   },

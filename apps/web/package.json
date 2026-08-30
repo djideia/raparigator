@@ -1,0 +1,38 @@
+{
+  "name": "@sigillus/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "dev:legacy": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test:e2e": "playwright test --project=chromium",
+    "test:e2e:ui": "playwright test --project=chromium --ui",
+    "test:e2e:report": "playwright show-report",
+    "share": "npx cloudflared tunnel --url http://localhost:3000"
+  },
+  "dependencies": {
+    "@orpc/client": "1.15.0",
+    "@orpc/contract": "1.15.0",
+    "@sentry/nextjs": "10.70.0",
+    "@sigillus/contracts": "0.1.0",
+    "@sigillus/domain": "0.1.0",
+    "lucide-react": "1.28.0",
+    "motion": "12.43.0",
+    "next": "16.2.12",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-image-crop": "11.1.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1",
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/node": "20.19.43",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
+    "tailwindcss": "4.3.3",
+    "typescript": "5.9.3"
+  }
+}
