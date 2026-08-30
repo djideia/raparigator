@@ -1,0 +1,49 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", ":pinAllExceptPeerDependencies", ":semanticCommits"],
+  "timezone": "America/Sao_Paulo",
+  "schedule": ["before 8am on monday"],
+  "labels": ["dependencies"],
+  "rangeStrategy": "pin",
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 8am on the first day of the month"]
+  },
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchDepTypes": ["devDependencies"],
+      "groupName": "devDependencies (minor e patch)"
+    },
+    {
+      "matchPackageNames": ["next", "react", "react-dom", "@types/react", "@types/react-dom"],
+      "groupName": "Next.js e React"
+    },
+    {
+      "matchPackageNames": ["oxlint", "oxfmt"],
+      "groupName": "oxc"
+    },
+    {
+      "matchPackagePatterns": ["^@orpc/"],
+      "groupName": "oRPC"
+    },
+    {
+      "matchPackagePatterns": ["^drizzle-"],
+      "groupName": "Drizzle"
+    },
+    {
+      "matchPackagePatterns": ["^@sentry/"],
+      "groupName": "Sentry"
+    },
+    {
+      "matchPackagePatterns": ["^@aws-sdk/"],
+      "groupName": "AWS SDK"
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true
+    }
+  ],
+  "vulnerabilityAlerts": { "enabled": true, "labels": ["security"] },
+  "osvVulnerabilityAlerts": true
+}

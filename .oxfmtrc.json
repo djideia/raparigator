@@ -1,15 +1,20 @@
 {
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
   "ignorePatterns": [
-    ".next/**",
-    "out/**",
-    "build/**",
-    "next-env.d.ts",
+    "**/.next/**",
+    "**/out/**",
+    "**/build/**",
+    "**/dist/**",
+    "**/coverage/**",
+    "**/next-env.d.ts",
+    "**/drizzle/**",
+    "**/package-lock.json",
     ".tmp-venv/**",
     ".agents/**",
     ".claude/**",
+    ".cursor/**",
     ".superpowers/**",
-    "playwright-report/**",
-    "test-results/**"
+    "**/playwright-report/**",
+    "**/test-results/**"
   ]
 }

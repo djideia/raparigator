@@ -1,0 +1,88 @@
+name: CI
+on:
+  pull_request:
+    branches: [main, development]
+  push:
+    branches: [development]
+jobs:
+  check:
+    name: Lint, format e typecheck
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+
+  test-domain:
+    name: Testes do domain
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run test -w packages/domain
+
+  test-api:
+    name: Testes da API (Postgres)
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: sigillus
+          POSTGRES_PASSWORD: sigillus
+          POSTGRES_DB: sigillus
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sigillus -d sigillus"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://sigillus:sigillus@localhost:5432/sigillus
+      NODE_ENV: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Aplica migrations no banco de CI
+        run: npm run db:migrate -w apps/api
+        env:
+          AUTH_SECRET: ci-only-secret-0123456789abcdef0123456789abcdef
+          S3_ENDPOINT: http://localhost:9000
+          S3_BUCKET: ci
+          S3_ACCESS_KEY_ID: ci
+          S3_SECRET_ACCESS_KEY: ci
+          BILLING_WEBHOOK_SECRET: ci-only-webhook-secret-123456
+      - name: Vitest da API
+        run: npm run test -w apps/api
+
+  docker-api:
+    name: Build da imagem da API
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/api/Dockerfile
+          push: false
+          tags: sigillus-api:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
